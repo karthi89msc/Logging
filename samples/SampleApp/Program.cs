@@ -5,11 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Extensions.Primitives;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace SampleApp
@@ -25,15 +21,16 @@ namespace SampleApp
                 .AddJsonFile("logging.json", optional: false, reloadOnChange: true)
                 .Build();
 
-            // A dependency injection based application would get ILoggerFactory injected instead.
+            // A Web App based program would configure logging via the WebHostBuilder.
             // Create a logger factory with filters that can be applied across all logger providers.
-            var factory = new LoggerFactory(loggingConfiguration.GetSection("Logging"));
-            factory.AddFilter(new Dictionary<string, LogLevel>
-            {
-                { "Microsoft", LogLevel.Warning },
-                { "System", LogLevel.Warning },
-                { "SampleApp.Program", LogLevel.Debug }
-            });
+            var factory = new LoggerFactory()
+                .UseConfiguration(loggingConfiguration.GetSection("Logging"))
+                .AddFilter(new Dictionary<string, LogLevel>
+                {
+                    { "Microsoft", LogLevel.Warning },
+                    { "System", LogLevel.Warning },
+                    { "SampleApp.Program", LogLevel.Debug }
+                });
 
             // providers may be added to a LoggerFactory before any loggers are created
 #if NET46
